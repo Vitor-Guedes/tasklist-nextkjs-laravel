@@ -16,7 +16,7 @@ backend/public_html/storage
 backend/public_html/hot
 
 backend/storage/*.key
-.env
+.env.*
 backend/Homestead.yamlbackend/
 backend/Homestead.json
 backend/.vagrant
