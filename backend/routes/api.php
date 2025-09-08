@@ -20,10 +20,11 @@ Route::prefix('user')
             Route::prefix('tasks')
                 ->controller(TaskController::class)
                 ->group(function () {
-                    Route::get('', 'index');
-                    Route::get('/{id}', 'task');
-                    Route::post('', 'store');
-                    Route::put('/{id}', 'update');
+                    Route::get('', 'index')->name('api.user.tasks.list');
+                    Route::get('/{id}', 'task')->name('api.user.tasks.one');
+                    Route::post('', 'store')->name('api.user.tasks.store');
+                    Route::put('/{id}', 'update')->name('api.user.tasks.update');
+                    Route::delete('/{id}', 'delete')->name('api.user.tasks.delete');
                 });
         });
 

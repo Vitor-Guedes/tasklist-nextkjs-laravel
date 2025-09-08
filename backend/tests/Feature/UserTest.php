@@ -3,30 +3,16 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use App\Models\User;
+use Tests\Traits\Utils;
 use Illuminate\Support\Arr;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UserTest extends TestCase
 {
-    Use RefreshDatabase;
-
-    protected function baseUser()
-    {
-        return [
-            'name' => 'User Test',
-            'email' => 'teste@teste.com',
-            'password' => '!pass@teste.1',
-            'password_confirmation' => '!pass@teste.1'
-        ];
-    }
-
-    protected function createBaseUser()
-    {
-        User::create(Arr::except($this->baseUser(), ['password_confirmation']));
-    }
-
+    Use RefreshDatabase,
+        Utils;
+    
     public function test_should_be_able_to_create_a_new_user(): void
     {
         $payload = $this->baseUser();
@@ -71,10 +57,12 @@ class UserTest extends TestCase
 
     public function test_should_be_able_to_log_out(): void
     {
-        $this->createBaseUser();
-        $credentials = Arr::only($this->baseUser(), ['email', 'password']);
+        $user = $this->createUser();
+        $credentials = [
+            'email' => $user->email,
+            'password' => 'password'
+        ];
        
-        $credentials = Arr::only($this->baseUser(), ['email', 'password']);
         $token = $this->postJson(route('api.user.login'), $credentials)->json('token');
 
         // test logout

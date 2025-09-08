@@ -14,8 +14,6 @@ class TaskController extends Controller
         $collection = Task::orderBy('created_at', 'asc')
             ->simplePaginate();
 
-        sleep(2);
-        
         return response()->json(
             $collection, 
             Response::HTTP_OK
@@ -67,6 +65,23 @@ class TaskController extends Controller
                 'success' => true,
                 'message' => 'Atualizado com sucesso.',
                 'task' => $task
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function delete(int $id)
+    {
+        try {
+            Task::findOrFail($id)->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Deletado com sucesso.'
             ], Response::HTTP_OK);
         } catch (Exception $e) {
             return response()->json([
