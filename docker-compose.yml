@@ -1,0 +1,78 @@
+services:
+  nginx:
+    image: nginx:1.25.2-alpine
+    container_name: app_tasklist_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./backend:/var/www/backend
+      - ./frontend:/var/www/frontend
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      tasklist-network:
+        ipv4_address: 172.24.0.12
+
+  db:
+    image: postgres:16
+    container_name: app_tasklist_postgres
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - tasklist-network
+  
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile-back
+    container_name: app_tasklist_backend
+    volumes:
+      - ./backend:/var/www/backend
+    environment:
+      DEBUG_MODE: ${BACKEND_DEBUG_MODE:-false}
+      DATABASE_NAME: ${DATABASE_NAME:-db_name}
+      DATABASE_USER: ${DATABASE_USER:-db_user}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-db_pass}
+    extra_hosts:
+      - "dev.frontend.local:172.24.0.12"
+      - "host.docker.internal:host-gateway"
+    networks:
+      - tasklist-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile-front
+    container_name: app_tasklist_frontend
+    volumes:
+      - ./frontend:/var/www/frontend
+    extra_hosts:
+      - "dev.backend.local:172.24.0.12"
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - backend
+    networks:
+      - tasklist-network
+
+networks:
+  tasklist-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.24.0.0/24
+
+volumes:
+  postgres-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/vitor/workspace/database/postgres
