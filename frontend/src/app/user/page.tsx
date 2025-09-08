@@ -5,15 +5,20 @@ import { useEffect, useState } from "react";
 import Paginate from "@/components/Paginate";
 import TaskCreate from "@/components/TaskCreate";
 import TaskSkeleton from "@/components/TaskSkeleton";
+import { proxy } from "@/services/proxy";
 
 export default function Home() {
-    const url = process.env.NEXT_PUBLIC_API_BACKEND + '/api/tasks';
+    const url = '/api/user/tasks';
     const [isLoading, setIsLoading] = useState(true);
     const [tasklist, setTaskList] = useState([]);
-    const [paginate, setPaginate] = useState({});
+    const [paginate, setPaginate] = useState({
+        prev_page_url: null,
+        next_page_url: null,
+        current_page_url: ""
+    });
     const fetchData = async function (url: string) {
         try {
-            const response = await fetch(url);
+            const response = await proxy(url);
 
             if (response.ok) {
                 const responseJson = await response.json();
@@ -25,14 +30,16 @@ export default function Home() {
             setTaskList([]);
             setPaginate({
                     prev_page_url: null,
-                    next_page_url: null
+                    next_page_url: null,
+                    current_page_url: ""
                 });
             setIsLoading(response.ok);
         } catch (error) {
             setTaskList([]);
             setPaginate({
                 prev_page_url: null,
-                next_page_url: null
+                next_page_url: null,
+                current_page_url: ""
             });
             setIsLoading(false);
         }
@@ -52,7 +59,12 @@ export default function Home() {
                 ? (<TaskSkeleton />) 
                 : ( 
                     <div>
-                        <TaskList title="Tarefas" taskListItems={ tasklist } />
+                        <TaskList 
+                            title="Tarefas" 
+                            taskListItems={ tasklist } 
+                            trigger={ handleListPage } 
+                            currentPage={ paginate?.current_page_url || "" }
+                        />
                         <Paginate paginate={ paginate } trigger={ handleListPage } />
                     </div>
                 )}

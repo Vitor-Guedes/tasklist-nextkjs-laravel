@@ -1,9 +1,11 @@
 'use client';
 
-import { FunctionComponent } from "react";
+import { proxy } from "@/services/proxy";
 import { useRouter } from "next/navigation";
+import BalloonMessage from "./BalloonMessage";
+import { FunctionComponent, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPenAlt } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPenAlt, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 interface Task {
     id: number,
@@ -13,21 +15,56 @@ interface Task {
 
 type Props = {
     title: string,
-    taskListItems: Task[]
+    taskListItems: Task[],
+    trigger: any,
+    currentPage: string
 }
 
-const TaskList: FunctionComponent<Props> = ({ title, taskListItems }) => {
+const TaskList: FunctionComponent<Props> = ({ title, taskListItems, trigger, currentPage }) => {
     const router = useRouter();
+    const [message, setMessage] = useState('');
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleEdit = function (id: number) {
         router.push(`/user/tasks/${id}`);
     };
-    const handleDelete = function (id: number) {
-        console.log('delete', id);
+    const handleDelete = async function (id: number) {
+        try {
+            setIsLoading(true);
+
+            const response = await proxy(`/api/user/tasks/${id}`, {
+                method: "DELETE"
+            });
+
+            if (response.ok) {
+                return trigger(currentPage);
+            }
+
+            const json = await response.json();
+            setMessage(json.message);
+            setIsSuccess(json.success);
+            setIsVisible(true);
+        } catch (error) {
+            setMessage("Algo deu errado, tente novamente mais tarde.");
+            setIsSuccess(false);
+            setIsVisible(true);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
         <div className="w-4xl mx-auto">
+
+             <BalloonMessage 
+                message={message} 
+                isVisible={isVisible} 
+                isSuccess={isSuccess} 
+                setIsVisible={setIsVisible}
+            />
+
             <h2 className="text-2xl dark:text-white mt-5">
                 { title }
             </h2>
@@ -52,15 +89,17 @@ const TaskList: FunctionComponent<Props> = ({ title, taskListItems }) => {
                                     <div className="flex flex-row gap-2 justify-around flex-row-reverse">
                                         <button 
                                             type="button"
+                                            disabled={isLoading}
                                             onClick={ () => handleDelete(task.id) }
                                             className="shadow border text-sm rounded py-2 px-3 text-white dark:text-white hover:bg-red-600 bg-red-800">
-                                            <FontAwesomeIcon icon={faTrash} />
+                                            {isLoading ? <FontAwesomeIcon icon={ faSpinner } spin /> : <FontAwesomeIcon icon={ faTrash } />}
                                         </button>
                                         <button
                                             type="button"
+                                            disabled={isLoading}
                                             onClick={ () => handleEdit(task.id) }
                                             className="shadow border text-sm rounded py-2 px-3 text-white dark:text-white hover:bg-indigo-600 bg-indigo-800">
-                                            <FontAwesomeIcon icon={faPenAlt} />
+                                            {isLoading ? <FontAwesomeIcon icon={ faSpinner } spin /> : <FontAwesomeIcon icon={ faPenAlt } />}
                                         </button>
                                     </div>
                                 </td>                                

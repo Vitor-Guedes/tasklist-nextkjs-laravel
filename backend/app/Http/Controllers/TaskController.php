@@ -4,15 +4,17 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\Task;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 
 class TaskController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $collection = Task::orderBy('created_at', 'asc')
-            ->simplePaginate();
+            ->simplePaginate()
+            ->setPath($request->path());
 
         return response()->json(
             $collection, 

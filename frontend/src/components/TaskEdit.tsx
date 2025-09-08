@@ -1,10 +1,11 @@
 'use client';
 
+import { proxy } from "@/services/proxy";
 import { useRouter } from "next/navigation";
 import BalloonMessage from "./BalloonMessage";
 import { FormEvent, FunctionComponent, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faRotateBack } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faRotateBack, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 interface Task {
     id: number,
@@ -23,34 +24,38 @@ const TaskEdit: FunctionComponent<Props> = ({ title, task, setTask }) => {
     const [message, setMessage] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleBack = function () {
         router.push('/user');
     }
 
-    const handleSubmit = function (event: FormEvent<HTMLFormElement>) {
+    const handleSubmit = async function (event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        event.stopPropagation();
+
+        setIsLoading(true);
 
         try {
-            fetch(process.env.NEXT_PUBLIC_API_BACKEND + `/api/tasks/${task.id}`, {
+            const response = await proxy(`/api/user/tasks/${task.id}`, {
                 method: "PUT",
-                body: JSON.stringify(task),
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json"
-                },
-            })
-            .then(response => response.json())
-            .then(response => {
-                setIsVisible(true);
-                setMessage(response.message || 'Atualizado com sucesso.');
-                setIsSuccess(response.success);
-                setIsSuccess(response.success);
+                body: JSON.stringify(task)
             });
+            
+            if (response.ok) {
+                const json = await response.json();
+                setMessage(json.message || 'Atualizado com sucesso.');
+                setIsVisible(true);
+                return setIsSuccess(json.success);
+            }
+
         } catch (error) {
-            console.log(error, 2)
+            setMessage("Algo deu errado, tente novamente mais tarde.");
+            setIsVisible(true);
+            setIsSuccess(false);
         } finally {
             setTask(task);
+            setIsLoading(false);
         }
     }
 
@@ -107,8 +112,9 @@ const TaskEdit: FunctionComponent<Props> = ({ title, task, setTask }) => {
                     </div>
                     <div className="mb-4 flex flex-row justify-between">
                         <button type="submit"
+                            disabled={isLoading}
                             className="shadow border rounded py-2 px-3 dark:text-gray-100 hover:bg-gray-500">
-                            <FontAwesomeIcon icon={ faCheck } />
+                            {isLoading ? <FontAwesomeIcon icon={ faSpinner } spin /> : <FontAwesomeIcon icon={ faCheck } />}
                         </button>
                         <button 
                             type="button"

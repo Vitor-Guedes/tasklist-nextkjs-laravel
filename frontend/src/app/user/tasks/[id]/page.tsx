@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import TaskEdit from "@/components/TaskEdit";
+import { proxy } from "@/services/proxy";
 
 export default function Task() {
     const params = useParams();
@@ -14,9 +15,7 @@ export default function Task() {
 
     useEffect(() => {
         const fetchTask = async () => {
-            const response = await fetch(process.env.NEXT_PUBLIC_API_BACKEND + `/api/tasks/${params.id}`, {
-                method: 'GET'
-            });
+            const response = await proxy(`/api/user/tasks/${params.id}`);
             const json = await response.json();
             setTask(json.task);
         }

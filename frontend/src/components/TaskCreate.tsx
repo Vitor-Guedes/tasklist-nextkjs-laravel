@@ -1,9 +1,10 @@
 'use client';
 
-import { FormEvent, FunctionComponent, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FormEvent, FunctionComponent, useState } from "react";
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import BalloonMessage from "./BalloonMessage";
+import { proxy } from "@/services/proxy";
 
 interface Task {
     title: string,
@@ -22,27 +23,26 @@ const TaskCreate: FunctionComponent<Props> = ({ title, trigger }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [message, setMessage] = useState("");
 
-    const handleSubmit = function (event: FormEvent<HTMLFormElement>) {
+    const handleSubmit = async function (event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
         try {
-            fetch(process.env.NEXT_PUBLIC_API_BACKEND + "/api/tasks", {
+            const response = await proxy('/api/user/tasks', {
                 method: "POST",
-                body: JSON.stringify(task),
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json"
-                },
-            })
-            .then(response => response.json())
-            .then(response => {
-                setIsVisible(true);
-                setMessage(response.message || 'Criado com sucesso.');
-                setIsSuccess(response.success);
-                trigger();
+                body: JSON.stringify(task)
             });
+
+            if (response.ok) {
+                const json = await response.json();
+                setIsVisible(true);
+                setMessage(json.message || 'Criado com sucesso.');
+                setIsSuccess(json.success);
+                return trigger();
+            }
         } catch (error) {
-            console.log(error, 1)
+            setMessage("Algo deu errado, tente novamente mais tarde.");
+            setIsVisible(true);
+            setIsSuccess(false);
         } finally {
             setTask(initialStatusTask);
         }

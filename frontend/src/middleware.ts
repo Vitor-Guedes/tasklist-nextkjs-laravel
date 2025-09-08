@@ -1,7 +1,7 @@
 // middleware.ts
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
-import { isValidToken } from "./app/services/auth";
+import { isValidToken } from "./services/auth";
 
 export function middleware(request: NextRequest) {
     const token = request.cookies.get(process.env.TOKEN_KEY as string)?.value;

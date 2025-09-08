@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-export function isValidToken (token: string|null): boolean {
+export function isValidToken(token: string|null): boolean {
     if (! token) {
         return false;
     }
