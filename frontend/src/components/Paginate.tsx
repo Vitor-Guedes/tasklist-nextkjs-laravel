@@ -15,6 +15,7 @@ const Paginate: FunctionComponent<Props> = ({paginate, trigger}) => {
         <nav className="flex items-center justify-center space-x-2 my-5">
             {paginate.prev_page_url !== null
                 ? (<button 
+                        title="Página anterior"
                         onClick={ handlePreviousPage }
                         className="px-4 py-2 border rounded-md dark:text-white hover:bg-gray-500">
                         <FontAwesomeIcon icon={ faArrowLeft } />
@@ -23,6 +24,7 @@ const Paginate: FunctionComponent<Props> = ({paginate, trigger}) => {
                 
             {paginate.next_page_url !== null
                 ? (<button 
+                    title="Proxima Página"
                     onClick={ handleNextPage }
                     className="px-4 py-2 border rounded-md dark:text-white hover:bg-gray-500">
                         <FontAwesomeIcon icon={ faArrowRight } />

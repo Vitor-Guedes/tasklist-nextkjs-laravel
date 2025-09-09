@@ -6,8 +6,6 @@ import { isValidToken } from "./services/auth";
 export function middleware(request: NextRequest) {
     const token = request.cookies.get(process.env.TOKEN_KEY as string)?.value;
 
-    console.log(request.headers.get('referer'));
-
     if (isValidToken(token as string)) {
         // se tiver token valido - redirect para dashboard
         if (request.nextUrl.pathname === '/') {

@@ -6,6 +6,7 @@ import BalloonMessage from "./BalloonMessage";
 import { FunctionComponent, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPenAlt, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import SearchBar from "./SearchBar";
 
 interface Task {
     id: number,
@@ -69,6 +70,8 @@ const TaskList: FunctionComponent<Props> = ({ title, taskListItems, trigger, cur
                 { title }
             </h2>
 
+            <SearchBar trigger={ trigger }/>
+
             <div className="flex flex-col">
                 <table className="table-auto w-full border-collapse">
                     <thead>
@@ -90,6 +93,7 @@ const TaskList: FunctionComponent<Props> = ({ title, taskListItems, trigger, cur
                                         <button 
                                             type="button"
                                             disabled={isLoading}
+                                            title="Deletar Tarefa"
                                             onClick={ () => handleDelete(task.id) }
                                             className="shadow border text-sm rounded py-2 px-3 text-white dark:text-white hover:bg-red-600 bg-red-800">
                                             {isLoading ? <FontAwesomeIcon icon={ faSpinner } spin /> : <FontAwesomeIcon icon={ faTrash } />}
@@ -97,6 +101,7 @@ const TaskList: FunctionComponent<Props> = ({ title, taskListItems, trigger, cur
                                         <button
                                             type="button"
                                             disabled={isLoading}
+                                            title="Editar Tarefa"
                                             onClick={ () => handleEdit(task.id) }
                                             className="shadow border text-sm rounded py-2 px-3 text-white dark:text-white hover:bg-indigo-600 bg-indigo-800">
                                             {isLoading ? <FontAwesomeIcon icon={ faSpinner } spin /> : <FontAwesomeIcon icon={ faPenAlt } />}

@@ -92,4 +92,33 @@ class TaskController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function search(Request $request)
+    {
+        try {
+            $parameters = $request->all();
+
+            $query = Task::query();
+
+            foreach ($parameters as $parameter => $value) {
+                if (in_array($parameter, Task::filterable())) {
+                    $query->{$parameter}($value);
+                }
+            }
+
+            $collection = $query->orderBy('created_at', 'asc')
+                ->simplePaginate()
+                ->setPath($request->path());
+
+            return response()->json(
+                $collection, 
+                Response::HTTP_OK
+            );
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

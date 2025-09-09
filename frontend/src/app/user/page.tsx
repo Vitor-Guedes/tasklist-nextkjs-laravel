@@ -6,9 +6,11 @@ import Paginate from "@/components/Paginate";
 import TaskCreate from "@/components/TaskCreate";
 import TaskSkeleton from "@/components/TaskSkeleton";
 import { proxy } from "@/services/proxy";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
     const url = '/api/user/tasks';
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
     const [tasklist, setTaskList] = useState([]);
     const [paginate, setPaginate] = useState({
@@ -25,7 +27,11 @@ export default function Home() {
                 setTaskList(responseJson.data || []);
                 setPaginate(responseJson || {});
                 return setIsLoading(! response.ok);
-            } 
+            }
+
+            if (response.status === 401) {
+                return router.push('/');
+            }
 
             setTaskList([]);
             setPaginate({

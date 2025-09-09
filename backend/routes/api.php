@@ -20,6 +20,7 @@ Route::prefix('user')
             Route::prefix('tasks')
                 ->controller(TaskController::class)
                 ->group(function () {
+                    Route::get('/search', 'search')->name('api.user.tasks.search');
                     Route::get('', 'index')->name('api.user.tasks.list');
                     Route::get('/{id}', 'task')->name('api.user.tasks.one');
                     Route::post('', 'store')->name('api.user.tasks.store');

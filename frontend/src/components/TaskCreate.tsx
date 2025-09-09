@@ -99,7 +99,9 @@ const TaskCreate: FunctionComponent<Props> = ({ title, trigger }) => {
                         </p>
                     </div>
                     <div className="mb-4">
-                        <button className="shadow border rounded py-2 px-3 dark:text-gray-100 hover:bg-gray-500" type="submit">
+                        <button 
+                            title="Cria nova tarefa"
+                            className="shadow border rounded py-2 px-3 dark:text-gray-100 hover:bg-gray-500" type="submit">
                             <FontAwesomeIcon icon={faPlus} />
                         </button>
                     </div>

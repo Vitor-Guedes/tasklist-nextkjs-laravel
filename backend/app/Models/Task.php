@@ -24,4 +24,22 @@ class Task extends Model
     {
         return TaskFactory::new();
     }
+
+    public static function filterable()
+    {
+        return [
+            'title',
+            'status'
+        ];
+    }
+
+    public function scopeTitle($query, $value)
+    {
+        $query->where('title', 'like', "%$value%");
+    }
+
+    public function scopeStatus($query, $value)
+    {
+        $query->where('status', '=', "$value");
+    } 
 }

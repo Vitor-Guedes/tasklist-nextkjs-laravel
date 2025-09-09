@@ -1,19 +1,26 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import BalloonMessage from '@/components/BalloonMessage';
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 export default function Page() {
+    useEffect(() => {
+        document.title = "TasklistApp - Login"
+    });
+
     const router = useRouter();    
     const [message, setMessage] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [credentials, setCredentials] = useState({email: "", password: ""});
     const handleSubmit = async function (event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+
+        setIsLoading(true);
 
         const response = await fetch('/api/user/login', {
             method: "POST",
@@ -25,11 +32,10 @@ export default function Page() {
         });
         const data = await response.json();
 
-        console.log(data, response);
-
         if (! response.ok) {
             setMessage(data.message);
             setIsVisible(true);
+            setIsLoading(false);
             return setIsSuccess(response.ok);
         }
 
@@ -82,8 +88,10 @@ export default function Page() {
                         </p>
                     </div>
                     <div className="mb-4">
-                        <button className="shadow border rounded py-2 px-3 dark:text-gray-100 hover:bg-gray-500" type="submit">
-                            <FontAwesomeIcon icon={faCheck} />
+                        <button 
+                            disabled={isLoading}
+                            className="shadow border rounded py-2 px-3 dark:text-gray-100 hover:bg-gray-500" type="submit">
+                            {isLoading ? <FontAwesomeIcon icon={ faSpinner } spin /> : <FontAwesomeIcon icon={faCheck} />}
                         </button>
                     </div>
                 </form>
